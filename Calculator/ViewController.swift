@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet private weak var display: UILabel!
+    @IBOutlet private weak var history: UILabel!
     
     private var userIsInTheMiddleOfTyping = false
   
@@ -38,18 +39,35 @@ class ViewController: UIViewController {
         }
     }
     
+    private var historyValue: String {
+        get {
+            return history.text!
+        }
+        set {
+            history.text = String(newValue)
+        }
+    }
+    
     private var brain = CalculatorBrain()
     
     @IBAction private func performOperation(_ sender: UIButton) {
         if userIsInTheMiddleOfTyping {
+            brain.description = display.text!
+            brain.description = sender.currentTitle!
             brain.setOperand(operand: displayValue)
             userIsInTheMiddleOfTyping = false
         }
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(symbol: mathematicalSymbol)
+            
         }
         
+        historyValue = brain.description
         displayValue = brain.result
+        
+        if sender.currentTitle! == "=" {
+            brain.resetHistory()
+        }
     }
 }
 

@@ -11,6 +11,7 @@ import Foundation
 class CalculatorBrain {
     
     private var accumulator = 0.0
+    private var history = ""
     
     func setOperand(operand: Double) {
         accumulator = operand
@@ -21,11 +22,14 @@ class CalculatorBrain {
         "e" : Operation.Constant(M_E),
         "√" : Operation.UnaryOperation(sqrt),
         "cos" : Operation.UnaryOperation(cos),
+        "sin" : Operation.UnaryOperation(sin),
+        "±" : Operation.UnaryOperation({ $0 * (-1)}),
         "×" : Operation.BinaryOperation({ $0 * $1 }),
         "+" : Operation.BinaryOperation({ $0 + $1 }),
         "−" : Operation.BinaryOperation({ $0 - $1 }),
         "÷" : Operation.BinaryOperation({ $0 / $1 }),
-        "=" : Operation.Equals
+        "=" : Operation.Equals,
+        "C" : Operation.Reset
     ]
     
     enum Operation {
@@ -33,6 +37,7 @@ class CalculatorBrain {
         case UnaryOperation((Double) -> Double)
         case BinaryOperation((Double, Double) -> Double)
         case Equals
+        case Reset
     }
     
     func performOperation(symbol: String) {
@@ -47,8 +52,16 @@ class CalculatorBrain {
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
             case .Equals:
                 executePendingBinaryOperation()
+            case .Reset:
+                history = " "
+                accumulator = 0
             }
         }
+    }
+    
+    func resetHistory()
+    {
+        history = " "
     }
     
     private func executePendingBinaryOperation()
@@ -64,6 +77,16 @@ class CalculatorBrain {
     struct PendingBinaryOperationInfo {
         var binaryFunction: (Double, Double) -> Double
         var firstOperand: Double
+    }
+    
+    var description: String {
+        get {
+            return history
+        }
+        
+        set {
+            history = history + " " + String(newValue)
+        }
     }
     
     var result: Double {
